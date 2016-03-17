@@ -59,8 +59,8 @@ def get_app_info(apps):
                     if line.startswith('Exec='):
                         exe = line.split('=')[1]
                     if name and exe:
-                        break;
-                app_info[name] = exe
+                        app_info[name] = exe
+                        break
 
     return app_info
 
