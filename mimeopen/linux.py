@@ -12,11 +12,11 @@ author: smileboywtu
 
 import os
 
-USER_HOME = os.environ['HOME'] 
-USER_APP = os.path.join(home, '.local', 'share', 'applications')
-SYS_APP = os.path.join('/', 'usr', 'share', 'applications')
+home = os.environ['HOME'] 
+user_assoc = os.path.join(home, '.local', 'share', 'applications')
+sys_assoc = os.path.join('/', 'usr', 'share', 'applications')
 
-assoc_path = [USER_APP, SYS_APP]
+assoc_path = [user_assoc, sys_assoc]
 
 
 def get_assoc_map_file():
