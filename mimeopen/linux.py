@@ -12,7 +12,7 @@ author: smileboywtu
 
 import os
 
-home = os.environ['HOME'] 
+home = os.environ['HOME']
 user_assoc = os.path.join(home, '.local', 'share', 'applications')
 sys_assoc = os.path.join('/', 'usr', 'share', 'applications')
 
@@ -37,14 +37,14 @@ def get_assoc_map_file():
 
 
 def get_app_info(apps):
-    """apps can be found in 
+    """apps can be found in
     1. /usr/share/applications
     2. ~/.local/share/applications
 
     other application can only be found by command.
     """
     app_info = {}
-    
+
     for app in apps:
         for path in assoc_path:
             if app not in os.listdir(path):
@@ -67,9 +67,9 @@ def get_app_info(apps):
 
 def get_open_with_list(associations, filename):
     """get the open with list according to file type
-    
+
     this method find all the application that can open this file
-    currently the method only find out the mimetype according to 
+    currently the method only find out the mimetype according to
     the file name.
 
     """
@@ -85,7 +85,7 @@ def get_open_with_list(associations, filename):
                     apps.append(items[1])
 
     app_list = get_app_info(apps)
-    return app_list 
+    return app_list
 
 
 def open_with_default(filename):
@@ -114,8 +114,6 @@ def mimeopen(filename):
 
     assocs = get_assoc_map_file()
 
-    app_list = get_open_with_list(assocs, filename)
-
-    app_info = get_app_info(app_list)
+    app_info = get_open_with_list(assocs, filename)
 
     return app_info
