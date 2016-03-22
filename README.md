@@ -57,3 +57,9 @@ program id for the UserChoice under **HKEY_CURRENT_USER\Software\Microsoft\Windo
 
 **3.** if you want to open with a program id, you can just use the program id to get
 the program shell command to open the program.
+
+you may keep care that on windows there are default edit and default open program for a
+file type. If you want to set the default edit program for a file type, you need
+first find out the progid and then find out the program execute path, after that
+just create HKEY_CURRENT_USER/Software/Classes/ext/shell/edit/command key and set
+the program path for it.
