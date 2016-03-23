@@ -12,8 +12,9 @@ author: smileboywtu
 """
 
 from _winreg import (
-    QueryInfoKey, OpenKey, CreateKeyEx, SetValueEx, REG_SZ, KEY_SET_VALUE,
-    HKEY_CLASSES_ROOT, HKEY_CURRENT_USER)
+    QueryInfoKey, QueryValueEx, OpenKey, EnumKey, CreateKeyEx, SetValueEx,
+    REG_SZ, KEY_SET_VALUE, HKEY_CLASSES_ROOT, HKEY_CURRENT_USER,
+    HKEY_LOCAL_MACHINE)
 
 
 def open_with_list(ext):
@@ -25,12 +26,12 @@ def open_with_list(ext):
         - ext file extention
     """
 
-    root_cls = OpenKey(HKEY_CLASSES_ROOT, None)
-    key_no = QueryInfoKey(root_cls)[1]
+    key = OpenKey(HKEY_CLASSES_ROOT, None)
+    key_no = QueryInfoKey(key)[0]
 
     all_keys = []
     for index in xrange(key_no):
-        all_keys.append(EnumKey(root_cls, index))
+        all_keys.append(EnumKey(key, index))
 
     filter_func = (
         lambda ext_:
@@ -42,73 +43,195 @@ def open_with_list(ext):
     return progids
 
 
+def get_prog_command(progid):
+    """use the program id to find out program path
+
+    params:
+        progid - program id in registry
+    """
+    open_command = None
+    edit_command = None
+
+    sub_key = '\\'.join([
+        progid, 'shell', 'edit', 'command'
+    ])
+
+    try:
+        key = OpenKey(HKEY_CLASSES_ROOT, sub_key)
+        edit_command = QueryValueEx(key, None)[0]
+    except WindowsError:
+        pass
+
+    sub_key = '\\'.join([
+        progid, 'shell', 'open', 'command'
+    ])
+
+    try:
+        key = OpenKey(HKEY_CLASSES_ROOT, sub_key)
+        open_command = QueryValueEx(key, None)[0]
+    except WindowsError:
+        pass
+
+    return open_command, edit_command
+
+
 def get_prog_name(progid):
     """use progid to find out the program name
 
+    get this information from the uninstall list
+
+    HKEY_LOCAL_MACHINE\SOFTWARE\
+    Wow6432Node\Microsoft\Windows\
+    CurrentVersion\Uninstall
+
     params:
-        - progid id in registry
+        - program id in registry
     """
-    pass
+    open_comand, edit_command = get_prog_command(progid)
+
+    prog_path = None
+    prog_name = None
+
+    if open_comand is not None:
+        import re
+        match = re.search(r'\"(.+)\\.+\.exe\"', open_comand)
+        if match:
+            prog_path = match.group(1)
+
+    sub_key = '\\'.join([
+        'SOFTWARE', 'Wow6432Node', 'Microsoft', 'Windows',
+        'CurrentVersion', 'Uninstall'
+    ])
+
+    key = OpenKey(HKEY_LOCAL_MACHINE, sub_key)
+    key_no = QueryInfoKey(key)[0]
+
+    for index in xrange(key_no):
+
+        key_name = EnumKey(key, index)
+        app_key = OpenKey(key, key_name)
+
+        try:
+            install_path = QueryValueEx(app_key, 'InstallLocation')[0]
+            if prog_path in install_path:
+                prog_name = QueryValueEx(app_key, 'DisplayName')[0]
+                return prog_name
+        except WindowsError:
+            pass
+
+        try:
+            remove_path = QueryValueEx(app_key, 'UninstallString')[0]
+            if prog_path in remove_path:
+                prog_name = QueryValueEx(app_key, 'DisplayName')[0]
+                return prog_name
+        except WindowsError:
+            pass
+
+    return None
+
+
+def set_user_editor(ext, progid, command):
+    """set the default editor for the user
+
+    this method rely on the program path
+
+    params:
+        ext - file ext
+        progid - progid
+        progpath - program execute path
+    """
+    sub_key = '\\'.join([
+        'Software', 'Classes', ext
+    ])
+
+    key = CreateKeyEx(HKEY_CURRENT_USER, sub_key, 0, KEY_SET_VALUE)
+    SetValueEx(key, None, REG_SZ, progid)
+
+    sub_key = '\\'.join([
+        'Software', 'Classes', progid, 'shell', 'edit', 'command'
+    ])
+
+    key = CreateKeyEx(HKEY_CURRENT_USER, sub_key, 0, KEY_SET_VALUE)
+    SetValueEx(key, None, REG_SZ, command)
 
 
 def set_user_choice(ext, progid):
     """set the default program for the ext
 
+    you may batter make sure the progid exists and this program just work for
+    open. do not for edit.
+
     params:
         - ext file extention
         - progid program id in regitstry
     """
-
     key_seq = '\\'.join([
         'Software', 'Microsoft', 'Windows',
-        'CurrentVersion', 'Explorer', 'FileExts', ext
+        'CurrentVersion', 'Explorer', 'FileExts', ext, 'UserChoice'
         ])
 
-    user_cls = OpenKey(HKEY_CURRENT_USER, key_seq)
-
-    user_default = CreateKeyEx(user_cls, 'UserChoice', 0, KEY_SET_VALUE)
+    user_default = CreateKeyEx(HKEY_CURRENT_USER, key_seq, 0, KEY_SET_VALUE)
 
     SetValueEx(user_default, 'Progid', REG_SZ, progid)
 
 
-def open_by_default(filename):
-    """open file by default program
-
-    """
-    import subprocess
-    from appnotfound import AppNotFound
-
-    error = subprocess.call(['cmd', '/c', 'start', filename])
-
-    if error:
-        raise AppNotFound(
-            "can't found proper program to open the file: {}".format(filename))
-
-
-def open_with_prog(progid, filename):
-    """open the file with the program
+def query_user_choice(progs):
+    """get the user choice from the list
 
     params:
-        progid - program id in registry
-        filename - file name to open
+        progs - program list
+    """
+    print "Available Program: "
+    for index, prog in enumerate(progs):
+        print '\t', index, ': ', prog[1]
+
+    choice = None
+    which not choice:
+        choice = input('choose a program: ')
+
+    return choice
+
+
+def execute_program(progpath, params=None):
+    """run a program according to it's path on windows
+
+    params:
+        progpath - program execute path
+        params - program params
     """
     import subprocess
 
-    key_seq = '\\'.join([
-        progid, 'Shell', 'Open', 'Command'
-    ])
-
-    prog_cls = OpenKey(HKEY_CLASSES_ROOT, key_seq)
-
-    command = EnumValue(prog_cls, 0)[2]
-
-    # execute the command
-    pass
+    return subprocess.call(['CMD', '/C', progpath, params])
 
 
 def mimeopen(filename):
-    """open a file according to it's mime type
+    """mimeopen a filter_func
 
-    return a list of application that can open this filename
+    open a file and supply enough programs
+
+    params:
+        filename - include the file extention
     """
-    pass
+    import re
+
+    match = re.search(r'.+(\.[a-zA-Z0-9]+)', filename)
+    if match:
+        ext = match.group(1)
+
+    progids = open_with_list(ext)
+
+    proginfo = []
+    for pid in progids:
+        progname = get_prog_name(pid)
+        if progname:
+            proginfo.append((pid, progname))
+
+    if proginfo:
+        choice = query_user_choice(proginfo)
+        progcommand = get_prog_command(proginfo[choice][0])
+        match = re.search(r'\"(.+\.exe)\"', progcommand)
+        error = execute_program(match.group(1), filename)
+        if error:
+            print 'Error happens when execute the program.'
+    else:
+        print 'No proper program found.'
