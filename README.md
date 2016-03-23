@@ -60,6 +60,7 @@ the program shell command to open the program.
 
 you may keep care that on windows there are default edit and default open program for a
 file type. If you want to set the default edit program for a file type, you need
-first find out the progid and then find out the program execute path, after that
-just create HKEY_CURRENT_USER/Software/Classes/ext/shell/edit/command key and set
-the program path for it.
+first find out the progid and then find out the program execute path, first associate
+the file ext with a progid by set **HKEY_CURRENT_USER/Software/Classes/ext** default value
+to progid, after that just create **HKEY_CURRENT_USER/Software/Classes/Progid/shell/edit/command** key and set
+the program path appending %1 for it.
