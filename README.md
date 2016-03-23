@@ -44,7 +44,7 @@ mimeopen filename
 after you find the file type associations, you can find the application
 information inside the .desktop file.
 
-## Windows
+## windows
 
 on window all the program information is saved in the registry, so just check the
 registry to find out the program information.
@@ -64,3 +64,9 @@ first find out the progid and then find out the program execute path, first asso
 the file ext with a progid by set **HKEY_CURRENT_USER/Software/Classes/ext** default value
 to progid, after that just create **HKEY_CURRENT_USER/Software/Classes/Progid/shell/edit/command** key and set
 the program path appending %1 for it.
+
+# mac
+
+mac is more easy than you think, you can just query the system **/Applications** folder.
+then for each application it contains a **.plist** file to record the file extention it
+can deal with, so just read it. 
