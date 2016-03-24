@@ -98,6 +98,9 @@ def get_prog_name(progid):
         if match:
             prog_path = match.group(1)
 
+    if not prog_path:
+        return None
+
     sub_key = '\\'.join([
         'SOFTWARE', 'Wow6432Node', 'Microsoft', 'Windows',
         'CurrentVersion', 'Uninstall'
@@ -145,14 +148,14 @@ def set_user_editor(ext, progid, command):
     ])
 
     key = CreateKeyEx(HKEY_CURRENT_USER, sub_key, 0, KEY_SET_VALUE)
-    SetValueEx(key, None, REG_SZ, progid)
+    SetValueEx(key, None, 0, REG_SZ, progid)
 
     sub_key = '\\'.join([
         'Software', 'Classes', progid, 'shell', 'edit', 'command'
     ])
 
     key = CreateKeyEx(HKEY_CURRENT_USER, sub_key, 0, KEY_SET_VALUE)
-    SetValueEx(key, None, REG_SZ, command)
+    SetValueEx(key, None, 0, REG_SZ, command)
 
 
 def set_user_choice(ext, progid):
@@ -172,7 +175,7 @@ def set_user_choice(ext, progid):
 
     user_default = CreateKeyEx(HKEY_CURRENT_USER, key_seq, 0, KEY_SET_VALUE)
 
-    SetValueEx(user_default, 'Progid', REG_SZ, progid)
+    SetValueEx(user_default, 'Progid', 0, REG_SZ, progid)
 
 
 def query_user_choice(progs):
