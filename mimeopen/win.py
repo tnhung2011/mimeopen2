@@ -189,10 +189,14 @@ def query_user_choice(progs):
         print '\t', index, ': ', prog[1]
 
     choice = None
+    max_size = len(porgs)
     which not choice:
-        choice = input('choose a program: ')
+        choice = int(input('choose a program: '))
+        if choice < max_size and choice > -1:
+            return choice
+        choice = None
 
-    return choice
+    return -1
 
 
 def execute_program(progpath, params=None):
