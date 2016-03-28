@@ -28,6 +28,10 @@ it's very simple:
 
 mimeopen filename
 
+# or
+
+from mimeopen import mimeopen
+
 ```
 
 # implementation
@@ -69,4 +73,4 @@ the program path appending %1 for it.
 
 mac is more easy than you think, you can just query the system **/Applications** folder.
 then for each application it contains a **.plist** file to record the file extention it
-can deal with, so just read it. 
+can deal with, so just read it.
