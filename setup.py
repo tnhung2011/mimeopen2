@@ -14,7 +14,7 @@ setup(
     required=[],
     entry_points={
         'console_scripts': [
-
+            'mimeopen = mimeopen.__init__:main',   
         ]
     }
 )
