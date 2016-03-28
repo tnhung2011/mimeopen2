@@ -51,17 +51,17 @@ def get_open_with_list(ext):
     for path in app_dir:
         for prog in os.listdir(path):
             match = re.search(r'.+\.app$', prog)
-            road = os.path.join(path, prog)
             if match:
+                road = os.path.join(path, prog)
                 name = is_support_ext(road, ext)
                 if name:
                     apps.append((name, road))
-            elif os.path.isdir(prog):
+            elif os.path.isdir(os.path.join(path, prog)):
                 nest = os.path.join(path, prog)
                 for prog in os.listdir(nest):
                     match = re.search(r'.+\.app$', prog)
-                    road = os.path.join(nest, prog)
                     if match:
+                        road = os.path.join(nest, prog)
                         name = is_support_ext(road, ext)
                         if name:
                             apps.append((name, road))
@@ -117,7 +117,7 @@ def mimeopen(filename):
 
     ext = match.group(1)
 
-    apps = get_open_with_list(filename)
+    apps = get_open_with_list(ext)
 
     choice = query_user_choice(apps)
 
@@ -125,5 +125,5 @@ def mimeopen(filename):
 
 
 if __name__ == '__main__':
-    filename = 'young.mp3'
+    filename = 'young.docx'
     mimeopen(filename)
