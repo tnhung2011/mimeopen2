@@ -190,7 +190,7 @@ def query_user_choice(progs):
 
     choice = None
     max_size = len(porgs)
-    which not choice:
+    while not choice:
         choice = int(input('choose a program: '))
         if choice < max_size and choice > -1:
             return choice
