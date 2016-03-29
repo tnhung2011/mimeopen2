@@ -189,7 +189,7 @@ def query_user_choice(progs):
         print '\t', index, ': ', prog[1]
 
     choice = None
-    max_size = len(porgs)
+    max_size = len(progs)
     while not choice:
         choice = int(input('choose a program: '))
         if choice < max_size and choice > -1:
@@ -221,7 +221,7 @@ def mimeopen(filename):
     """
     import re
 
-    match = re.search(r'.+(\.[a-zA-Z0-9]+)', filename)
+    match = re.search(r'.+(\.[\w]+)', filename)
     if match:
         ext = match.group(1)
 
@@ -236,7 +236,7 @@ def mimeopen(filename):
     if proginfo:
         choice = query_user_choice(proginfo)
         progcommand = get_prog_command(proginfo[choice][0])
-        match = re.search(r'\"(.+\.exe)\"', progcommand)
+        match = re.search(r'\"(.+\.exe)\"', progcommand[0])
         error = execute_program(match.group(1), filename)
         if error:
             print 'Error happens when execute the program.'
