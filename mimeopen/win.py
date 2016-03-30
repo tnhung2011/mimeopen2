@@ -87,14 +87,14 @@ def get_prog_name(progid):
     params:
         - program id in registry
     """
-    open_comand, edit_command = get_prog_command(progid)
+    open_command, edit_command = get_prog_command(progid)
 
     prog_path = None
     prog_name = None
 
-    if open_comand is not None:
+    if open_command is not None:
         import re
-        match = re.search(r'\"(.+)\\.+\.exe\"', open_comand)
+        match = re.search(r'\"(.+)\\.+\.exe\"', open_command)
         if match:
             prog_path = match.group(1)
 
