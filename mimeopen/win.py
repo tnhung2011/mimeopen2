@@ -37,11 +37,19 @@ def open_with_list(ext):
     # check if the default program already in list
     progids = []
     key = OpenKey(HKEY_CLASSES_ROOT, ext)
+    progids.append(QueryValueEx(key, None)[0])
     key_no = QueryInfoKey(key)[0]
     for index in xrange(key_no):
         _id = EnumKey(key, index)
         if _id in all_keys:
             progids.append(_id)
+
+    filter_func = (
+        lambda ext_:
+        (ext_.endswith(ext) or ext_.endswith(ext.upper())) and
+        (ext_ != ext and ext_ != ext.upper()))
+
+    progids.extend(filter(filter_func, all_keys))
 
     return progids
 
