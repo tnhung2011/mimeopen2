@@ -6,7 +6,22 @@ mimeopen program use the registry to find the proper apps
 
 keep care that the _winreg lib only available on windows
 
-created: 2016/3/18
+update:
+
+.ext--
+    -- OpenWithList
+        -- exe
+        -- program
+    -- OpenWithProgids
+        -- progids
+    -- shell
+        -- open
+            -- command
+        -- edit
+            -- command
+    -- progids
+
+created:    2016/3/21
 author: smileboywtu
 
 """
@@ -402,6 +417,16 @@ def get_direct_progids(ext):
 
     logger.debug('default progid: %s', progids)
 
+    # get backup programs
+    try:
+        progid = QueryValueEx(key, 'backup')[0]
+    except WindowsError:
+        progid = ''
+
+    logger.debug('backup progid: %s', progid)
+
+    progids.append(progid)
+
     key_no = QueryInfoKey(key)[0]
     for index in xrange(key_no):
         _id = EnumKey(key, index)
@@ -461,6 +486,18 @@ def get_all_program(ext):
     dup = set()
     uniq = [exe for exe in exes if exe[0].lower() not in dup and not dup.add(exe[0].lower())]
 
+    # make the default editor the first one
+    default_editor = user_current_editor(ext)
+
+    if default_editor:
+        for index, item in enumerate(uniq):
+            if default_editor == item[1]:
+                default_editor = item
+                break
+        if len(default_editor) > 1:
+            del uniq[index]
+            uniq.insert(0, default_editor)
+
     return uniq
 
 
@@ -482,6 +519,37 @@ def get_wildcard_program():
     exes.extend(get_direct_progids('*') or [])
 
     return  list(set(exes))
+
+
+def user_current_editor(ext):
+    """get the usr current editor
+    @params:
+        ext -- file extention
+    @return
+        progid -- program progid
+    """
+    try:
+        key = OpenKey(HKEY_CLASSES_ROOT, ext)
+        return QueryValue(key, None)
+    except WindowsError:
+        return None
+
+
+def backup_user_editor(ext):
+    """back up the user editor"""
+
+    current_editor = user_current_editor(ext)
+
+    if not current_editor:
+        return
+
+    # need to backup the user editor
+    sub_key = '\\'.join([
+        'Software', 'Classes', ext
+    ])
+
+    key = CreateKeyEx(HKEY_CURRENT_USER, sub_key, 0, KEY_SET_VALUE)
+    SetValueEx(key, 'backup', 0, REG_SZ, current_editor)
 
 
 def set_user_editor(ext, progid, command):
