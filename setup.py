@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
     name='mimeopen',
-    version='2.0',
+    version='2.0-alpha',
     packages=['mimeopen'],
     description='get open with list for a file',
     author='smileboywtu',
