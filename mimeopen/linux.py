@@ -27,7 +27,7 @@ def get_assoc_map_file():
 
     """
 
-    associations = []
+    associations = None
     for path in assoc_path:
         for filename in os.listdir(path):
             if filename.endswith('.list'):
@@ -44,7 +44,7 @@ def get_app_info(apps):
     other application can only be found by command.
     """
     import re
-    app_info = {}
+    app_info = {} # ???
 
     for app in apps:
         for path in assoc_path:
@@ -52,8 +52,8 @@ def get_app_info(apps):
                 continue
             filepath = os.path.join(path, app)
             with open(filepath, 'r') as fp:
-                name = ''
-                exe = ''
+                name = None
+                exe = None
                 for line in fp:
                     if name and exe:
                         app_info[name] = exe
@@ -80,7 +80,7 @@ def get_open_with_list(associations, filename):
     import mimetypes
     mime, _ = mimetypes.guess_type(filename)
 
-    apps = []
+    apps = None
     for assoc in associations:
         with open(assoc, 'r') as fp:
             for line in fp:
@@ -137,7 +137,7 @@ def mimeopen(filename):
     let the user choose what to use
 
     """
-    import subprocess
+    from subprocess import run
 
     assocs = get_assoc_map_file()
 
@@ -147,7 +147,7 @@ def mimeopen(filename):
 
     command = app_info.values()[choice]
 
-    subprocess.call([command])
+    run([command])
 
 
 if __name__ == '__main__':
