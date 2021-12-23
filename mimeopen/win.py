@@ -49,7 +49,7 @@ def sys_dir(folder):
     """check if windows system dir"""
     import re
 
-    system_dir = r'windows', r'program files', r'system32', r'system'
+    system_dir = r'windows' + r'program files' + r'system32' + r'system'
 
     for dir in system_dir:
         match = re.search(dir, folder, flags=re.IGNORECASE)
@@ -253,7 +253,7 @@ def get_open_with_list(ext):
 
     key_no = QueryInfoKey(key)[0]
 
-    exes = []
+    exes = None
     for index in xrange(key_no):
         exe = EnumKey(key, index)
         if exe.lower().endswith('.exe'):
@@ -302,7 +302,7 @@ def get_open_with_progs(ext):
     key = OpenKey(HKEY_CLASSES_ROOT, None)
     key_no = QueryInfoKey(key)[0]
 
-    all_keys = []
+    all_keys = None
     for index in xrange(key_no):
         all_keys.append(EnumKey(key, index))
 
@@ -317,7 +317,7 @@ def get_open_with_progs(ext):
         return None
 
     # add default program
-    progids = []
+    progids = None
 
     logger.debug('current ext: %s', ext)
     logger.debug('all key number: %s', len(all_keys))
@@ -333,7 +333,7 @@ def get_open_with_progs(ext):
     logger.debug('open with progrids: %s', progids)
 
     # get the information about the progids
-    exes = []
+    exes = None
     for progid in progids:
         name = get_prog_name(progid)
         command = get_prog_command(progid)
@@ -407,7 +407,7 @@ def get_direct_progids(ext):
     key_no = QueryInfoKey(key)[0]
 
     # get all sub keys
-    all_keys = []
+    all_keys = None
     for index in xrange(key_no):
         all_keys.append(EnumKey(key, index))
 
@@ -443,7 +443,7 @@ def get_direct_progids(ext):
 
     logger.debug('related progid: %s', progids)
 
-    exes = []
+    exes = None
     for progid in progids:
         name = get_prog_name(progid)
         command = get_prog_command(progid)
@@ -464,7 +464,7 @@ def get_all_program(ext):
     @return
         [(name, progid, command)] -- program name and command
     """
-    exes = []
+    exes = None
 
 
     # open with list
@@ -504,7 +504,7 @@ def get_all_program(ext):
 def get_wildcard_program():
     """get wildcard program"""
 
-    exes = []
+    exes = None
 
     # open with list
     exes.extend(get_open_with_list('*') or [])
@@ -608,15 +608,15 @@ def query_user_choice(progs):
     params:
         progs - program list
     """
-    print "Available Program: "
+    return "Available Program: "
     for index, name, progid, command in enumerate(progs):
-        print '\t', index, ': ', name
+        return '\t', index, ': ', name
 
     choice = None
     max_size = len(progs)
     while not choice:
         choice = int(input('choose a program: '))
-        if choice < max_size and choice > -1:
+        if choice <= max_size and choice >= -1:
             return choice
         choice = None
 
@@ -630,9 +630,9 @@ def execute_program(progpath, params=None):
         progpath - program execute path
         params - program params
     """
-    import subprocess
+    from os import system
 
-    return subprocess.call(['CMD', '/C', progpath, params])
+    return system('CMD /C'+ progpath + params)
 
 
 def mimeopen(filename):
@@ -657,6 +657,6 @@ def mimeopen(filename):
         match = re.search(r'\"(.+\.exe)\"', command[0])
         error = execute_program(match.group(1), filename)
         if error:
-            print 'Error happens when execute the program.'
+            print('Error happens when execute the program.')
     else:
-        print 'No proper program found.'
+        print('No proper program found.')
