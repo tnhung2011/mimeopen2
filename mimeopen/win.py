@@ -370,7 +370,7 @@ def get_shell_progids(ext):
 
     key_no = QueryInfoKey(key)[0]
 
-    exes = []
+    exes = None
     for index in xrange(key_no):
         _name = EnumKey(key, index)
         sub_key = '\\'.join([
