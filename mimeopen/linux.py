@@ -6,6 +6,7 @@ this script work only with ubuntu currently.
 
 created: 2016/3/17
 author: smileboywtu
+contributor(s): tnhung2011
 
 """
 
