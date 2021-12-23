@@ -24,7 +24,7 @@ python setup.py install
 
 it's very simple:
 
-``` shell
+``` python
 
 mimeopen filename
 
