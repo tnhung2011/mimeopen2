@@ -469,19 +469,19 @@ def get_all_program(ext):
 
 
     # open with list
-    exes.extend(get_open_with_list(ext) or [])
+    exes.extend(get_open_with_list(ext) or None)
 
     # open with progid
-    exes.extend(get_open_with_progs(ext) or [])
+    exes.extend(get_open_with_progs(ext) or None)
 
     # get shell command
-    exes.extend(get_shell_progids(ext) or [])
+    exes.extend(get_shell_progids(ext) or None)
 
     # get direct program
-    exes.extend(get_direct_progids(ext) or [])
+    exes.extend(get_direct_progids(ext) or None)
 
     # wildcard programs
-    exes.extend(get_wildcard_program() or [])
+    exes.extend(get_wildcard_program() or None)
 
     # get rid of the duplicate program
     dup = set()
