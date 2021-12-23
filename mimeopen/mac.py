@@ -47,7 +47,7 @@ def get_open_with_list(ext):
     params:
         ext -- extention for the filename
     """
-    apps = []
+    apps = None
     for path in app_dir:
         for prog in os.listdir(path):
             match = re.search(r'.+\.app$', prog)
@@ -74,9 +74,9 @@ def open_with_default(filename):
     params:
         filename --  file to be opened
     """
-    import subprocess
+    from subprocess import run
 
-    error = subprocess.call(['open', filename])
+    error = run(['open', filename])
 
     if error:
         print 'fail to open the file.'
@@ -97,7 +97,7 @@ def query_user_choice(apps):
 
     while not choice:
         choice = int(input('choose a program: '))
-        if choice < max_size and choice > -1:
+        if choice <= max_size and choice >= -1:
             return choice
         choice = None
 
@@ -109,7 +109,7 @@ def mimeopen(filename):
         filename -- the file to be opened, must contains the file extention
 
     """
-    import subprocess
+    from subprocess import run
 
     match = re.search(r'.+\.(\w+)$', filename)
     if not match:
@@ -121,7 +121,7 @@ def mimeopen(filename):
 
     choice = query_user_choice(apps)
 
-    subprocess.call(['open', '-a', apps[choice][1], filename])
+    run(['open', '-a', apps[choice][1], filename])
 
 
 if __name__ == '__main__':
